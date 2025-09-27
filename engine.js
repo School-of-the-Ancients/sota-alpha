@@ -1,6 +1,6 @@
 
 /* -------------------- CONFIG -------------------- */
-const AI_ENDPOINT = 'https://sota-12glq4u1k-thetophams-projects.vercel.app/api/lesson/next'; // set after API deploy
+const AI_ENDPOINT = 'https://sota-fc87abn2x-thetophams-projects.vercel.app/api/lesson/next';
 
 /* -------------------- STATIC LESSONS (fallback) -------------------- */
 const LESSONS = {
