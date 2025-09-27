@@ -1,7 +1,7 @@
-
-/* -------------------- CONFIG --------------------  */
-const AI_ENDPOINT = 'https://sota-vert.vercel.app/api/lesson/next';
-
+/* -------------------- CONFIG -------------------- */
+const API_BASE = 'https://sota-vert.vercel.app';        // stable Vercel host for your API
+const AI_ENDPOINT   = `${API_BASE}/api/lesson/next`;
+const CHAT_ENDPOINT = `${API_BASE}/api/chat`;
 
 /* -------------------- STATIC LESSONS (fallback) -------------------- */
 const LESSONS = {
@@ -20,10 +20,7 @@ const LESSONS = {
       despite:  { line: "Closer. But ‘despite’ what, and for whose good? Add judgment to action.", next: "ending" },
       ending: {
         takeaway: "Courage = knowing fear + judging the good + acting anyway.",
-        sources: [
-          "Plato, Laches 190e–194e",
-          "Aristotle, Nicomachean Ethics III"
-        ],
+        sources: [ "Plato, Laches 190e–194e", "Aristotle, Nicomachean Ethics III" ],
         quiz: [
           { q: "Which element is essential here?", opts: ["Fearlessness", "Judgment of the good", "Constant fear"], correct: 1 },
           { q: "‘No fear’ most risks…", opts: ["Cowardice", "Rashness", "Indecision"], correct: 1 }
@@ -46,10 +43,7 @@ const LESSONS = {
       unrelated: { line: "Relativity unites them: mass is ‘condensed’ energy; they convert under conditions.", next: "ending" },
       ending: {
         takeaway: "Mass–energy equivalence: matter stores energy (E=mc²). That’s why stars shine.",
-        sources: [
-          "Einstein (1905) mass–energy paper",
-          "Einstein & Infeld (1938) The Evolution of Physics"
-        ],
+        sources: [ "Einstein (1905) mass–energy paper", "Einstein & Infeld (1938) The Evolution of Physics" ],
         quiz: [
           { q: "Why can tiny mass release huge energy?", opts: ["c² is large", "Mass is small", "Light is fast"], correct: 0 },
           { q: "E=mc² unites…", opts: ["Force & time", "Mass & energy", "Charge & spin"], correct: 1 }
@@ -72,10 +66,7 @@ const LESSONS = {
       spectacle: { line: "Display reframes negotiation—when paired with substance.", next: "ending" },
       ending: {
         takeaway: "Power is negotiated: combine information, alliances, and timing to bend outcomes.",
-        sources: [
-          "Plutarch, Life of Antony",
-          "Cassius Dio, Roman History"
-        ],
+        sources: [ "Plutarch, Life of Antony", "Cassius Dio, Roman History" ],
         quiz: [
           { q: "Most durable lever?", opts: ["Spectacle", "Alliances/loyalty", "Secrecy"], correct: 1 },
           { q: "Info without timing is…", opts: ["Noise", "Force", "Charm"], correct: 0 }
@@ -98,10 +89,7 @@ const LESSONS = {
       skies:  { line: "Composition matters, but depth needs structure—lines, scale, atmosphere.", next: "ending" },
       ending: {
         takeaway: "Perspective = geometry + light: vanishing points, scaling, and aerial falloff create depth.",
-        sources: [
-          "Leonardo, Treatise on Painting",
-          "Alberti (1435), De pictura"
-        ],
+        sources: [ "Leonardo, Treatise on Painting", "Alberti (1435), De pictura" ],
         quiz: [
           { q: "Defines linear perspective?", opts: ["Random shadows", "Vanishing point geometry", "Wide canvases"], correct: 1 },
           { q: "Distant objects appear…", opts: ["Larger & sharper", "Smaller & hazier", "Same size"], correct: 1 }
@@ -118,19 +106,6 @@ class StaticScriptEngine {
     const state = req.state || { personaId: req.personaId, history: [] };
     const nodes = this.script.nodes;
     let nodeId = !state.history.length ? 'start' : (req.userChoiceId || 'ending');
-    // If choice text equals next id, map via nodes
-    if (nodes[nodeId]) {
-      // ok
-    } else {
-      // find the next by last node mapping
-      const last = state.history[state.history.length - 1];
-      if (last && nodes[last.nodeId] && nodes[last.nodeId].choices) {
-        const choice = nodes[last.nodeId].choices.find(c => c.text === req.userChoiceText);
-        nodeId = (choice && choice.next) || 'ending';
-      } else {
-        nodeId = 'ending';
-      }
-    }
     const node = nodes[nodeId] || nodes['ending'];
     state.history.push({ nodeId, choiceId: req.userChoiceText || null });
     return { node, state };
@@ -150,7 +125,7 @@ class OpenAICharacterEngine {
   }
 }
 
-/* -------------------- UI RUNTIME -------------------- */
+/* -------------------- LESSON UI -------------------- */
 const el = id => document.getElementById(id);
 const picker = el('lessonPicker');
 const enginePicker = el('enginePicker');
@@ -169,7 +144,6 @@ const copied = el('copied');
 
 let curKey = 'socrates';
 let curEngineMode = 'script';
-let engine = null;
 let state = undefined;
 let transcript = [], answers = [], score = 0;
 
@@ -178,51 +152,32 @@ function tts(text){
 }
 
 function renderNode(node){
-  choices.innerHTML = ''; takeaway.innerHTML=''; sources.innerHTML=''; quiz.innerHTML=''; cta.style.display='none';
+  choices.innerHTML=''; takeaway.innerHTML=''; sources.innerHTML=''; quiz.innerHTML=''; cta.style.display='none';
 
-  if (node.line){
-    line.textContent = node.line;
-    tts(node.line); transcript.push('> ' + node.line);
-    replayBtn.disabled = false;
-  } else {
-    line.textContent = ''; replayBtn.disabled = true;
-  }
+  if (node.line){ line.textContent = node.line; tts(node.line); transcript.push('> '+node.line); replayBtn.disabled=false; }
+  else { line.textContent=''; replayBtn.disabled=true; }
 
   if (node.choices){
     node.choices.forEach(ch=>{
-      const b = document.createElement('button');
+      const b=document.createElement('button');
       b.textContent = ch.text;
       b.onclick = ()=> advance(ch.id ?? ch.next ?? null, ch.text);
       choices.appendChild(b);
     });
-  } else if (node.nextId){
-    setTimeout(()=>advance(node.nextId), 600);
   } else if (node.takeaway){
-    line.textContent = 'Takeaway';
-    tts(node.takeaway);
+    line.textContent = 'Takeaway'; tts(node.takeaway);
     takeaway.innerHTML = `<div class="pill">Takeaway</div><div class="mt8">${node.takeaway}</div>`;
-    sources.innerHTML = `<div class="pill">Sources</div><ul class="mt8">` +
-      (node.sources||[]).map(s=>`<li class="small">${s}</li>`).join('') + `</ul>`;
-
-    score = 0;
-    quiz.innerHTML = `<div class="pill">Quick check (2)</div>`;
+    sources.innerHTML = `<div class="pill">Sources</div><ul class="mt8">` + (node.sources||[]).map(s=>`<li class="small">${s}</li>`).join('') + `</ul>`;
+    score = 0; quiz.innerHTML = `<div class="pill">Quick check (2)</div>`;
     (node.quiz||[]).forEach((q,i)=>{
-      const wrap = document.createElement('div'); wrap.className='mt12';
-      wrap.innerHTML = `<div>${i+1}. ${q.q}</div>`;
+      const wrap = document.createElement('div'); wrap.className='mt12'; wrap.innerHTML = `<div>${i+1}. ${q.q}</div>`;
       q.opts.forEach((opt,idx)=>{
-        const btn = document.createElement('button'); btn.className='secondary mt8'; btn.textContent = opt;
-        btn.onclick = ()=>{
-          btn.disabled = true;
-          if(idx === q.correct){ score++; btn.style.borderColor='#2b67f6'; btn.style.color='#cfe0ff'; }
-          else { btn.style.opacity='.7'; }
-        };
-        wrap.appendChild(document.createElement('br'));
-        wrap.appendChild(btn);
-      });
-      quiz.appendChild(wrap);
+        const btn=document.createElement('button'); btn.className='secondary mt8'; btn.textContent=opt;
+        btn.onclick=()=>{ btn.disabled=true; if(idx===q.correct){ score++; btn.style.borderColor='#2b67f6'; btn.style.color='#cfe0ff'; } else { btn.style.opacity='.7'; } };
+        wrap.appendChild(document.createElement('br')); wrap.appendChild(btn);
+      }); quiz.appendChild(wrap);
     });
-
-    cta.style.display = 'block';
+    cta.style.display='block';
   }
 }
 
@@ -234,46 +189,43 @@ async function advance(userChoiceId=null, userChoiceText=null){
 
   const req = { personaId: curKey, goal, state, userChoiceId, userChoiceText };
   try{
-    const engineImpl = (curEngineMode==='ai' && AI_ENDPOINT.startsWith('http')) ?
-      new OpenAICharacterEngine(AI_ENDPOINT) :
-      new StaticScriptEngine(LESSONS[curKey]);
-
+    const engineImpl = (curEngineMode==='ai') ? new OpenAICharacterEngine(AI_ENDPOINT)
+                                              : new StaticScriptEngine(LESSONS[curKey]);
     const resp = await engineImpl.next(req);
-    state = resp.state;
-    scene.textContent = LESSONS[curKey].title;
-    renderNode(resp.node);
+    state = resp.state; scene.textContent = LESSONS[curKey].title; renderNode(resp.node);
     if (userChoiceText){ answers.push(userChoiceText); transcript.push(userChoiceText); }
   }catch(e){
-    // fallback to static on error
     const resp = await new StaticScriptEngine(LESSONS[curKey]).next(req);
-    state = resp.state;
-    scene.textContent = LESSONS[curKey].title + ' (script fallback)';
-    renderNode(resp.node);
+    state = resp.state; scene.textContent = LESSONS[curKey].title + ' (script fallback)'; renderNode(resp.node);
   }
 }
 
-replayBtn.onclick = ()=> {
-  const last = transcript.slice().reverse().find(t => t.startsWith('> '));
-  if (last) tts(last.slice(2));
-};
+replayBtn.onclick = ()=>{ const last = transcript.slice().reverse().find(t=>t.startsWith('> ')); if(last) tts(last.slice(2)); };
+startBtn.onclick = ()=>{ curKey=picker.value; curEngineMode=enginePicker.value; state=undefined; transcript=[]; answers=[]; score=0; advance(); };
+copyBtn.onclick = ()=>{ const payload = [`Figure: ${LESSONS[curKey].title}`, `Engine: ${enginePicker.value}`, `Choices: ${answers.join(' | ')||'(none)'}`, `Score: ${score} / 2`, `Email: ${email.value||'(none)'}`, `Transcript:\n${transcript.join('\n')}`].join('\n'); navigator.clipboard.writeText(payload).then(()=>{ copied.style.display='block'; setTimeout(()=>copied.style.display='none',1500); }); };
 
-startBtn.onclick = ()=>{
-  curKey = picker.value;
-  curEngineMode = enginePicker.value;
-  state = undefined; transcript=[]; answers=[]; score=0;
-  advance(null, null);
-};
+/* -------------------- CHAT UI -------------------- */
+const tabLessons = el('tabLessons'), tabChat = el('tabChat');
+const lessonCard = el('lessonCard'), chatCard = el('chatCard');
+const chatWho = el('chatWho'), chatLog = el('chatLog');
+const chatInput = el('chatInput'), sendChat = el('sendChat'), newChat = el('newChat');
 
-copyBtn.onclick = ()=>{
-  const payload = [
-    `Figure: ${LESSONS[curKey].title}`,
-    `Engine: ${enginePicker.value}`,
-    `Choices: ${answers.join(' | ') || '(none)'}`,
-    `Score: ${score} / 2`,
-    `Email: ${email.value || '(none)'}`,
-    `Transcript:\n${transcript.join('\n')}`
-  ].join('\n');
-  navigator.clipboard.writeText(payload).then(()=>{
-    copied.style.display='block'; setTimeout(()=> copied.style.display='none', 1500);
-  });
-};
+let chatHistory = [];
+function showLessons(){ tabLessons.classList.add('active'); tabChat.classList.remove('active'); lessonCard.style.display='block'; chatCard.style.display='none'; }
+function showChat(){ tabChat.classList.add('active'); tabLessons.classList.remove('active'); lessonCard.style.display='none'; chatCard.style.display='block'; }
+tabLessons.onclick = showLessons; tabChat.onclick = showChat;
+
+function addMsg(text, me=false){ const d=document.createElement('div'); d.className='msg '+(me?'me':'them'); d.textContent=text; chatLog.appendChild(d); chatLog.scrollTop = chatLog.scrollHeight; }
+
+async function sendChatMsg(){
+  const q = (chatInput.value||'').trim(); if(!q) return; chatInput.value=''; addMsg(q,true);
+  try{
+    const r = await fetch(CHAT_ENDPOINT,{ method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ personaId: chatWho.value, history: chatHistory, user: q }) });
+    const j = await r.json(); chatHistory = j.history || chatHistory; addMsg(j.reply || '[no reply]');
+  }catch(err){ addMsg('[error contacting server]'); }
+}
+sendChat.onclick = sendChatMsg; chatInput.onkeydown = e=>{ if(e.key==='Enter') sendChatMsg(); };
+newChat.onclick = ()=>{ chatHistory=[]; chatLog.innerHTML=''; addMsg(`You are now speaking with ${chatWho.options[chatWho.selectedIndex].text}.`); };
+
+/* default: show lessons */
+showLessons();
