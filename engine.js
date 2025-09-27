@@ -117,7 +117,7 @@ class StaticScriptEngine {
   async next(req) {
     const state = req.state || { personaId: req.personaId, history: [] };
     const nodes = this.script.nodes;
-    let nodeId = !state.history.length ? 'start' : req.userChoiceId ? req.userChoiceId : 'ending';
+    let nodeId = !state.history.length ? 'start' : (req.userChoiceId || 'ending');
     // If choice text equals next id, map via nodes
     if (nodes[nodeId]) {
       // ok
@@ -192,7 +192,7 @@ function renderNode(node){
     node.choices.forEach(ch=>{
       const b = document.createElement('button');
       b.textContent = ch.text;
-      b.onclick = ()=> advance(ch.id || ch.text, ch.text);
+      b.onclick = ()=> advance(ch.next, ch.text);
       choices.appendChild(b);
     });
   } else if (node.nextId){
