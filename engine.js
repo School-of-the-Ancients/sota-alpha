@@ -192,7 +192,7 @@ function renderNode(node){
     node.choices.forEach(ch=>{
       const b = document.createElement('button');
       b.textContent = ch.text;
-      b.onclick = ()=> advance(ch.next, ch.text);
+      b.onclick = ()=> advance(ch.id ?? ch.next ?? null, ch.text);
       choices.appendChild(b);
     });
   } else if (node.nextId){
