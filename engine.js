@@ -1,6 +1,6 @@
 
 /* -------------------- CONFIG -------------------- */
-const AI_ENDPOINT = 'https://sota-api.vercel.app/api/lesson/next';
+const AI_ENDPOINT = 'https://sota-vert.vercel.app/api/lesson/next';
 
 
 /* -------------------- STATIC LESSONS (fallback) -------------------- */
