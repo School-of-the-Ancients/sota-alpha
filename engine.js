@@ -1,5 +1,5 @@
 /* -------------------- CONFIG -------------------- */
-const API_BASE = 'https://sota-vert.vercel.app';        // stable Vercel host for your API
+const API_BASE = 'https://sota-vert.vercel.app';  // stable Vercel host
 const AI_ENDPOINT   = `${API_BASE}/api/lesson/next`;
 const CHAT_ENDPOINT = `${API_BASE}/api/chat`;
 
@@ -105,20 +105,17 @@ class StaticScriptEngine {
   async next(req) {
     const state = req.state || { personaId: req.personaId, history: [] };
     const nodes = this.script.nodes;
-    let nodeId = !state.history.length ? 'start' : (req.userChoiceId || 'ending');
+    const nodeId = !state.history.length ? 'start' : (req.userChoiceId || 'ending');
     const node = nodes[nodeId] || nodes['ending'];
     state.history.push({ nodeId, choiceId: req.userChoiceText || null });
     return { node, state };
   }
 }
-
 class OpenAICharacterEngine {
   constructor(endpoint) { this.endpoint = endpoint; }
   async next(req) {
     const r = await fetch(this.endpoint, {
-      method: 'POST',
-      headers: { 'Content-Type':'application/json' },
-      body: JSON.stringify(req)
+      method: 'POST', headers: { 'Content-Type':'application/json' }, body: JSON.stringify(req)
     });
     if (!r.ok) throw new Error(await r.text());
     return r.json();
@@ -130,6 +127,7 @@ const el = id => document.getElementById(id);
 const picker = el('lessonPicker');
 const enginePicker = el('enginePicker');
 const startBtn = el('startBtn');
+const restartBtn = el('restartBtn');
 const replayBtn = el('replayBtn');
 const scene = el('scene');
 const line = el('line');
@@ -147,9 +145,7 @@ let curEngineMode = 'script';
 let state = undefined;
 let transcript = [], answers = [], score = 0;
 
-function tts(text){
-  try { const u = new SpeechSynthesisUtterance(text); u.rate=1.02; speechSynthesis.cancel(); speechSynthesis.speak(u); } catch(e){}
-}
+function tts(text){ try { const u = new SpeechSynthesisUtterance(text); u.rate=1.02; speechSynthesis.cancel(); speechSynthesis.speak(u); } catch(e){} }
 
 function renderNode(node){
   choices.innerHTML=''; takeaway.innerHTML=''; sources.innerHTML=''; quiz.innerHTML=''; cta.style.display='none';
@@ -161,6 +157,7 @@ function renderNode(node){
     node.choices.forEach(ch=>{
       const b=document.createElement('button');
       b.textContent = ch.text;
+      // accept id from AI, or next from script
       b.onclick = ()=> advance(ch.id ?? ch.next ?? null, ch.text);
       choices.appendChild(b);
     });
@@ -195,20 +192,25 @@ async function advance(userChoiceId=null, userChoiceText=null){
     state = resp.state; scene.textContent = LESSONS[curKey].title; renderNode(resp.node);
     if (userChoiceText){ answers.push(userChoiceText); transcript.push(userChoiceText); }
   }catch(e){
-    const resp = await new StaticScriptEngine(LESSONS[curKey]).next(req);
-    state = resp.state; scene.textContent = LESSONS[curKey].title + ' (script fallback)'; renderNode(resp.node);
+    // graceful fallback to script start
+    curEngineMode = 'script';
+    enginePicker.value = 'script';
+    state = undefined; transcript=[]; answers=[]; score=0;
+    const resp = await new StaticScriptEngine(LESSONS[curKey]).next({ personaId: curKey, state });
+    scene.textContent = LESSONS[curKey].title + ' (script fallback)'; renderNode(resp.node);
   }
 }
 
 replayBtn.onclick = ()=>{ const last = transcript.slice().reverse().find(t=>t.startsWith('> ')); if(last) tts(last.slice(2)); };
-startBtn.onclick = ()=>{ curKey=picker.value; curEngineMode=enginePicker.value; state=undefined; transcript=[]; answers=[]; score=0; advance(); };
-copyBtn.onclick = ()=>{ const payload = [`Figure: ${LESSONS[curKey].title}`, `Engine: ${enginePicker.value}`, `Choices: ${answers.join(' | ')||'(none)'}`, `Score: ${score} / 2`, `Email: ${email.value||'(none)'}`, `Transcript:\n${transcript.join('\n')}`].join('\n'); navigator.clipboard.writeText(payload).then(()=>{ copied.style.display='block'; setTimeout(()=>copied.style.display='none',1500); }); };
+startBtn.onclick  = ()=>{ curKey=picker.value; curEngineMode=enginePicker.value; state=undefined; transcript=[]; answers=[]; score=0; advance(); };
+restartBtn.onclick= ()=>{ state=undefined; transcript=[]; answers=[]; score=0; advance(); };
+copyBtn.onclick   = ()=>{ const payload = [`Figure: ${LESSONS[curKey].title}`, `Engine: ${enginePicker.value}`, `Choices: ${answers.join(' | ')||'(none)'}`, `Score: ${score} / 2`, `Email: ${email.value||'(none)'}`, `Transcript:\n${transcript.join('\n')}`].join('\n'); navigator.clipboard.writeText(payload).then(()=>{ copied.style.display='block'; setTimeout(()=>copied.style.display='none',1500); }); };
 
 /* -------------------- CHAT UI -------------------- */
-const tabLessons = el('tabLessons'), tabChat = el('tabChat');
-const lessonCard = el('lessonCard'), chatCard = el('chatCard');
-const chatWho = el('chatWho'), chatLog = el('chatLog');
-const chatInput = el('chatInput'), sendChat = el('sendChat'), newChat = el('newChat');
+const tabLessons = document.getElementById('tabLessons'), tabChat = document.getElementById('tabChat');
+const lessonCard = document.getElementById('lessonCard'), chatCard = document.getElementById('chatCard');
+const chatWho = document.getElementById('chatWho'), chatLog = document.getElementById('chatLog');
+const chatInput = document.getElementById('chatInput'), sendChat = document.getElementById('sendChat'), newChat = document.getElementById('newChat');
 
 let chatHistory = [];
 function showLessons(){ tabLessons.classList.add('active'); tabChat.classList.remove('active'); lessonCard.style.display='block'; chatCard.style.display='none'; }
@@ -216,7 +218,6 @@ function showChat(){ tabChat.classList.add('active'); tabLessons.classList.remov
 tabLessons.onclick = showLessons; tabChat.onclick = showChat;
 
 function addMsg(text, me=false){ const d=document.createElement('div'); d.className='msg '+(me?'me':'them'); d.textContent=text; chatLog.appendChild(d); chatLog.scrollTop = chatLog.scrollHeight; }
-
 async function sendChatMsg(){
   const q = (chatInput.value||'').trim(); if(!q) return; chatInput.value=''; addMsg(q,true);
   try{
@@ -227,5 +228,5 @@ async function sendChatMsg(){
 sendChat.onclick = sendChatMsg; chatInput.onkeydown = e=>{ if(e.key==='Enter') sendChatMsg(); };
 newChat.onclick = ()=>{ chatHistory=[]; chatLog.innerHTML=''; addMsg(`You are now speaking with ${chatWho.options[chatWho.selectedIndex].text}.`); };
 
-/* default: show lessons */
+/* default view */
 showLessons();
