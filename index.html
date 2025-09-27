@@ -3,17 +3,18 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>School of the Ancients — 1-Minute Micro-Lessons</title>
+<title>School of the Ancients — 1-Minute Micro-Lessons + Chat</title>
 <style>
   body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; margin:0; background:#0f0f14; color:#f5f7fb; }
   header { padding:16px 20px; border-bottom:1px solid #232536; display:flex; gap:12px; align-items:center; flex-wrap:wrap;}
   h1 { font-size:18px; margin:0;}
   .tag { font-size:12px; background:#1c1f2e; padding:6px 10px; border-radius:999px; border:1px solid #2a2d42;}
-  main { max-width:780px; margin:24px auto; padding:0 16px 60px; }
+  main { max-width:900px; margin:24px auto; padding:0 16px 60px; }
   .card { background:#141826; border:1px solid #232536; border-radius:14px; padding:20px; box-shadow:0 10px 30px rgba(0,0,0,.25); }
   .row { display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
   button { background:#2b67f6; color:white; border:0; padding:12px 14px; border-radius:10px; cursor:pointer; font-weight:600; }
   button.secondary { background:#232536; border:1px solid #2a2d42; color:#cdd3e1; }
+  button.ghost { background:transparent; border:1px solid #2a2d42; color:#cdd3e1; }
   button:disabled { opacity:.5; cursor:not-allowed; }
   select, input[type="text"] { background:#0f1320; color:#e8ecf7; border:1px solid #2a2d42; border-radius:10px; padding:10px; }
   .dim { color:#aab2c8; font-size:13px; }
@@ -22,6 +23,15 @@
   .pill { display:inline-block; padding:6px 10px; border-radius:999px; background:#101522; border:1px solid #2a2d42; margin-right:6px; }
   .small { font-size:12px; }
   .mt8{margin-top:8px}.mt12{margin-top:12px}.mt16{margin-top:16px}.mt24{margin-top:24px}
+  /* chat */
+  #chatLog { max-height:360px; overflow:auto; margin-top:8px; }
+  .msg { padding:10px 12px; border-radius:12px; margin:8px 0; max-width:80% }
+  .me { background:#1b243a; margin-left:auto }
+  .them { background:#101522; border:1px solid #2a2d42 }
+  /* tabs */
+  .tabs { display:flex; gap:8px; margin:16px 0; }
+  .tabs button { padding:8px 12px; border-radius:999px; }
+  .tabs .active { background:#2b67f6; border:0; color:white; }
 </style>
 </head>
 <body>
@@ -32,7 +42,13 @@
 </header>
 
 <main>
-  <div class="card">
+  <div class="tabs">
+    <button id="tabLessons" class="active">Lessons</button>
+    <button id="tabChat" class="ghost">Chat</button>
+  </div>
+
+  <!-- LESSONS CARD -->
+  <div id="lessonCard" class="card">
     <div class="row" style="justify-content:space-between">
       <div class="row">
         <div>
@@ -78,7 +94,34 @@
     </div>
   </div>
 
-  <p class="dim small mt12">Validation-first: explicit takeaway, sources, and 2 checks. Toggle AI to test character emulation.</p>
+  <!-- CHAT CARD -->
+  <div id="chatCard" class="card" style="display:none;">
+    <div class="row" style="justify-content:space-between">
+      <div class="row">
+        <div>
+          <div class="dim small">Figure</div>
+          <select id="chatWho">
+            <option value="socrates">Socrates</option>
+            <option value="einstein">Einstein</option>
+            <option value="cleopatra">Cleopatra</option>
+            <option value="davinci">Leonardo</option>
+          </select>
+        </div>
+      </div>
+      <div class="row">
+        <button id="newChat" class="ghost">New chat</button>
+      </div>
+    </div>
+
+    <div id="chatLog"></div>
+    <div class="row" style="margin-top:8px">
+      <input id="chatInput" placeholder="Ask a question…" style="flex:1" />
+      <button id="sendChat">Send</button>
+    </div>
+    <div class="small" style="margin-top:8px">AI via Vercel API • replies try to cite canonical sources sparingly</div>
+  </div>
+
+  <p class="dim small mt12">Validation-first: explicit takeaway, sources, and 2 checks. Toggle AI to test character emulation. Chat lane for open-ended convo.</p>
 </main>
 
 <script src="./engine.js"></script>
