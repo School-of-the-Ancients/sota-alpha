@@ -228,5 +228,17 @@ async function sendChatMsg(){
 sendChat.onclick = sendChatMsg; chatInput.onkeydown = e=>{ if(e.key==='Enter') sendChatMsg(); };
 newChat.onclick = ()=>{ chatHistory=[]; chatLog.innerHTML=''; addMsg(`You are now speaking with ${chatWho.options[chatWho.selectedIndex].text}.`); };
 
+// Card selection: clicking a card picks the persona & shows a system line
+document.querySelectorAll('.cardBtn').forEach(btn=>{
+  btn.onclick = ()=>{
+    const id = btn.dataset.id;
+    const name = btn.querySelector('div').textContent.trim();
+    chatWho.value = id;          // set dropdown too
+    chatHistory = [];            // new conversation per persona
+    chatLog.innerHTML = '';
+    addMsg(`You are now speaking with ${name}.`, false);
+  };
+});
+
 /* default view */
 showLessons();
