@@ -1,0 +1,13 @@
+{
+  "name": "sota-api",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "zod": "^3.23.8"
+  },
+  "scripts": {
+    "dev": "vercel dev",
+    "deploy": "vercel deploy",
+    "vercel:init": "vercel"
+  }
+}
