@@ -8,12 +8,15 @@ const WINDOW_MS = 60_000; // 1 minute
 const LIMIT = 30;         // 30 requests/min per IP (tune for demos)
 
 export default async function handler(req, res) {
+  // CORS for browser fetch from schooloftheancients.com
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
   res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
   if (req.method === "OPTIONS") return res.status(200).end();
 
-  if (req.method !== "POST") return res.status(405).json({ error: "Use POST" });
+  if (req.method !== "POST") {
+    return res.status(405).json({ error: "Use POST" });
+  }
   try {
     // Rate limit
     const ip = (req.headers["x-forwarded-for"] || req.socket.remoteAddress || "").split(",")[0].trim();
