@@ -2,13 +2,36 @@
 import { PERSONAS } from "../personas.js";
 import { NodeSchema } from "../validation.js";
 
+function normalizeNode(n, persona) {
+  // ensure minimal shape, then upgrade to terminal if no choices
+  const out = { id: n.id || "node", speaker: "character" };
+  if (Array.isArray(n.choices) && n.choices.length) {
+    // map to at most 3, assign A/B/C ids if missing
+    const ABC = ["A","B","C"];
+    out.line = n.line || "Choose an option.";
+    out.choices = n.choices.slice(0,3).map((c,i)=>({
+      id: c.id || ABC[i],
+      text: c.text || String(c)
+    }));
+  } else {
+    out.takeaway = n.takeaway || (n.line ? n.line : "Here’s the key idea.");
+    out.sources  = (n.sources && n.sources.length) ? n.sources.slice(0,3)
+                : (persona.canon || []).slice(0,2);
+    out.quiz     = (Array.isArray(n.quiz) && n.quiz.length === 2) ? n.quiz : [
+      { q: "Was there a clear takeaway?", opts: ["Yes","No","Not sure"], correct: 0 },
+      { q: `Which figure spoke?`,        opts: [persona.name, "Unknown", "Another"], correct: 0 }
+    ];
+  }
+  return out;
+}
+
 export default async function handler(req, res) {
   // CORS
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type, Origin, Accept");
   res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
   if (req.method === "OPTIONS") return res.status(200).end();
-  if (req.method !== "POST") return res.status(405).json({ error: "Use POST" });
+  if (req.method !== "POST")   return res.status(405).json({ error: "Use POST" });
 
   try {
     const { personaId, goal, level="intro", sources=[], state, userChoiceId, userChoiceText } = req.body || {};
@@ -40,8 +63,8 @@ export default async function handler(req, res) {
         response_format: { type: "json_object" },
         messages: [
           { role: "system", content: system },
-          { role: "user", content: `Persona: ${persona.name} — ${persona.role}` },
-          { role: "user", content: JSON.stringify(userPayload) }
+          { role: "user",   content: `Persona: ${persona.name} — ${persona.role}` },
+          { role: "user",   content: JSON.stringify(userPayload) }
         ]
       })
     });
@@ -52,15 +75,16 @@ export default async function handler(req, res) {
       return res.status(502).json({ error: raw.slice(0, 1000) });
     }
 
-    let data;
-    try { data = JSON.parse(raw); }
-    catch(e){ return res.status(502).json({ error: "Non-JSON from model" }); }
+    let data; try { data = JSON.parse(raw); }
+    catch { return res.status(502).json({ error: "Non-JSON from model" }); }
 
-    const content = data?.choices?.[0]?.message?.content;
+    const content = data?.choices?.[0]?.message?.content || "{}";
     let node;
-    try { node = NodeSchema.parse(JSON.parse(content)); }
-    catch (e) {
-      // graceful terminal
+    try {
+      const candidate = JSON.parse(content);
+      node = NodeSchema.parse(normalizeNode(candidate, persona));
+    } catch (e) {
+      // Final guard — never break the UI
       node = {
         id: "ending",
         speaker: "character",
