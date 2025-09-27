@@ -36,4 +36,4 @@ Runs in any browser (no headset). Optionally calls an AI endpoint to emulate his
 - Per-IP basic rate limiting baked into the endpoint (very light, tweak as needed).
 
 ## License
-MIT (see LICENSE)
+MIT
