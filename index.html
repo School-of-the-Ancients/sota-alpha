@@ -28,7 +28,7 @@
   .small { font-size:12px; }
   .mt8{margin-top:8px}.mt12{margin-top:12px}.mt16{margin-top:16px}.mt24{margin-top:24px}
   /* chat */
-  #chatLog { max-height:520px; min-height:320px; overflow:auto; margin-top:8px; }
+  #chatLog { max-height:360px; overflow:auto; margin-top:8px; }
   .msg { padding:10px 12px; border-radius:12px; margin:8px 0; max-width:80% }
   .me { background:#1b243a; margin-left:auto }
   .them { background:#101522; border:1px solid #2a2d42 }
@@ -39,22 +39,57 @@
   #personaPrompts .dim { color:#aab2c8; }
   .promptMeta { color:#cdd3e1; margin-bottom:6px; }
   .promptOptions { display:flex; flex-direction:column; gap:6px; margin-top:6px; }
-  .promptOption { text-align:left; background:#101522; border:1px solid #2a2d42; border-radius:10px; padding:10px 12px; color:#f5f7fb; cursor:pointer; font-size:13px; transition:border-color .15s ease, background .15s ease; }
-  .promptOption:hover { border-color:#2b67f6; background:#161b2b; }
-  .home-link {
-  color: inherit;
-  text-decoration: none;
-}
-.home-link:focus,
-.home-link:hover {
-  text-decoration: underline; /* optional */
-}
-
+  .promptOption {
+    text-align:left;
+    background: rgba(12, 15, 27, 0.9);
+    border:1px solid var(--border);
+    border-radius:10px;
+    padding:10px 12px;
+    color:var(--text);
+    cursor:pointer;
+    font-size:13px;
+  }
+  .promptOption:hover,
+  .promptOption:focus-visible { border-color:var(--accent); background:rgba(21, 27, 45, 0.95); }
+  .chatControls {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+  }
+  .chatControls input { flex: 1; min-width: 0; }
+  .chatControls button { flex: 0 0 auto; }
+  .supportNote {
+    color: var(--text-dim);
+  }
+  @media (max-width: 900px) {
+    main { width: min(100%, 100% - 32px); }
+  }
+  @media (max-width: 680px) {
+    header { flex-direction: column; align-items: flex-start; }
+    .cardHeader { align-items: stretch; }
+    .cardHeader button { width: 100%; }
+    #cardGrid { grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); }
+  }
+  @media (max-width: 560px) {
+    .cardHeader { flex-direction: column; }
+    .chatControls { flex-direction: column; align-items: stretch; }
+    .chatControls button { width: 100%; }
+    #chatLog { max-height: min(50vh, 400px); }
+    .msg { max-width: 100%; }
+  }
+  @media (max-width: 420px) {
+    main { width: min(100%, 100% - 24px); }
+    #cardGrid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .hero h2 { font-size: clamp(22px, 8vw, 28px); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { transition: none !important; animation-duration: 0.01ms !important; }
+  }
 </style>
 </head>
 <body>
 <header>
-  <h1><a href="https://schooloftheancients.com/" class="home-link">School of the Ancients</a></h1>
+  <h1><a href="https://schooloftheancients.com/">School of the Ancients</a></h1>
   <span class="tag">Alpha Demo</span>
   <span class="tag">Socratic dialogue playground</span>
 </header>
@@ -68,11 +103,10 @@
 
   <!-- CHAT CARD -->
   <div id="chatCard" class="card">
-    <div class="row" style="justify-content:space-between">
-      <div class="row">
-        <div>
-          <div class="dim small">Figure</div>
-          <select id="chatWho">
+    <div class="cardHeader">
+      <div class="fieldControl">
+        <label for="chatWho" class="dim small">Figure</label>
+        <select id="chatWho">
             <option value="socrates">Socrates</option>
             <option value="plato">Plato</option>
             <option value="aristotle">Aristotle</option>
@@ -85,14 +119,11 @@
             <option value="davinci">Leonardo</option>
           </select>
         </div>
-      </div>
-      <div class="row">
-        <button id="newChat" class="ghost">Start fresh</button>
-      </div>
+      <button id="newChat" class="ghost">Start fresh</button>
     </div>
 
     <!-- Character cards grid -->
-    <div id="cardGrid" class="row" style="gap:16px; flex-wrap:wrap; margin:12px 0">
+    <div id="cardGrid">
       <button class="cardBtn" data-id="socrates">
         <img src="./img/socrates.png" alt="Socrates">
         <div class="small">Socrates</div>
@@ -137,11 +168,11 @@
 
     <div id="chatLog"></div>
     <div id="personaPrompts" class="small"></div>
-    <div class="row" style="margin-top:8px">
-      <input id="chatInput" placeholder="Ask a question…" style="flex:1" />
+    <div class="chatControls">
+      <input id="chatInput" placeholder="Ask a question…" />
       <button id="sendChat">Send</button>
     </div>
-    <div class="small" style="margin-top:8px">AI via Vercel API • replies use Socratic Q&amp;A with canonical citations when relevant</div>
+    <div class="small supportNote">AI via Vercel API • replies use Socratic Q&amp;A with canonical citations when relevant</div>
   </div>
 
   
