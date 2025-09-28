@@ -1,39 +1,45 @@
-# SotA — Micro Lessons (Headset-Optional)
+# School of the Ancients — Socratic Chat Prototype
 
-One-minute Socratic micro-lessons with **choices → adaptive response → takeaway → sources → 2 quick checks**.
-Runs in any browser (no headset). Optionally calls an AI endpoint to emulate historical figures.
+Conversational micro-lessons with historical figures. The static site runs in any modern browser and can call the companion serverless API to generate Socratic responses backed by citations.
 
-## Live structure
-- `web/` → static site (deploy via GitHub Pages)
-- `api/` → serverless AI endpoint (deploy via Vercel)
+## Features
+- Interactive chat UI with persona selector and character cards
+- Suggested prompts per historical figure for one-click follow-up questions
+- Vercel-backed API endpoint for streaming AI dialogue and references
+- Graceful fallbacks when the API cannot be reached
 
-## Quick start
+## Project structure
+- `index.html` — single-page UI shell and styling
+- `engine.js` — front-end logic, chat transport, and persona metadata
+- `img/` — portrait assets for the featured figures
+- `api/` — serverless functions (Vercel) powering the adaptive dialogue
+- `vercel.json` — Vercel routing configuration for the deployed project
 
-### 1) Web (GitHub Pages)
-1. Edit `web/engine.js` and set `AI_ENDPOINT` to your Vercel URL when ready.
-2. Commit & push.
-3. In GitHub: **Settings → Pages → Build and deployment**  
-   Source: **Deploy from a branch**  
-   Branch: **main** / Folder: **/web**  
-4. Visit `https://<org>.github.io/sota-micro-lessons/web/`.
+## Local development
+1. Ensure `engine.js` points at the correct API base (`API_BASE`). For purely local static testing you can leave it as-is; responses will fail gracefully if the API is unreachable.
+2. Serve the site from the repo root, e.g. `python3 -m http.server 8080` and open http://localhost:8080.
+3. (Optional) Develop the API with `cd api && npm install && npx vercel dev` to run the endpoints locally.
 
-### 2) API (Vercel)
-1. `cd api && npm i`
-2. `npm run vercel:init` (optional) or just `npx vercel` to set up a project.
-3. Add env vars on Vercel:
-   - `OPENAI_API_KEY` = your key
-   - `OPENAI_MODEL` = `gpt-4o-mini` (or your pick)
-4. `npx vercel deploy` (or push and let Vercel Git integration deploy)
-5. Copy the deployed URL, set it as `AI_ENDPOINT` in `web/engine.js`.
+## Deployment
 
-### Local dev
-- Web: `cd web && python3 -m http.server 8080` → http://localhost:8080
-- API: `cd api && npx vercel dev` → http://localhost:3000/api/lesson/next
+### Static site
+- Host the repository on any static provider (GitHub Pages, Netlify, Vercel, etc.).
+- Serve `index.html`, `engine.js`, and the `img/` directory from the root of the project.
+- Update `API_BASE` in `engine.js` to the deployed API URL.
 
-## Safety / reliability
-- No API key in the browser (serverless only).
-- Schema validation on the server (Zod). On failure, the web UI falls back to static lessons.
-- Per-IP basic rate limiting baked into the endpoint (very light, tweak as needed).
+### API (Vercel)
+1. `cd api && npm install`
+2. `npx vercel` to link or create a project.
+3. Set environment variables on Vercel:
+   - `OPENAI_API_KEY`
+   - `OPENAI_MODEL` (defaults well to `gpt-4o-mini`)
+4. `npx vercel deploy` or push to a connected repo to trigger a build.
+5. Copy the deployment URL and set it in `engine.js` as the API base.
+
+## Safety and reliability notes
+- API key stays server-side; the browser only calls the deployed function.
+- Zod-based schema validation prevents malformed responses from surfacing in the UI.
+- Lightweight per-IP rate limiting guards against basic misuse.
 
 ## License
 MIT
