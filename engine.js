@@ -11,7 +11,26 @@ const personaPrompts = document.getElementById('personaPrompts');
 let chatHistory = [];
 
 const PERSONA_DETAILS = {
+  socrates: {
+    name: 'Socrates',
+    image: './img/socrates.png',
+    description: 'classical Greek philosopher',
+    timeframe: '5th century BC',
+    expertise: 'ethics and dialectics',
+    passion: 'challenging assumptions through inquiry',
+    prompts: [
+      'What does it mean to lead a virtuous life?',
+      'Why is self-knowledge important for wisdom?',
+      'How do questions help reveal the truth?'
+    ]
+  },
   einstein: {
+    name: 'Albert Einstein',
+    image: './img/einstein.jpg',
+    description: 'physicist',
+    timeframe: 'early 20th century',
+    expertise: 'scientific background',
+    passion: 'exploring the mysteries of the universe',
     prompts: [
       'What is the theory of relativity?',
       'How did you come up with E=mc²?',
@@ -19,6 +38,12 @@ const PERSONA_DETAILS = {
     ]
   },
   galileo: {
+    name: 'Galileo Galilei',
+    image: './img/galileo.jpg',
+    description: 'astronomer and physicist',
+    timeframe: '16th and 17th centuries',
+    expertise: 'astronomical and scientific knowledge',
+    passion: 'understanding the cosmos',
     prompts: [
       'Tell me about your discoveries with the telescope.',
       'How did you prove that the Earth revolves around the Sun?',
@@ -26,6 +51,12 @@ const PERSONA_DETAILS = {
     ]
   },
   davinci: {
+    name: 'Leonardo Da Vinci',
+    image: './img/davinci.jpg',
+    description: 'artist, inventor, and scientist',
+    timeframe: '15th and 16th centuries',
+    expertise: 'artistic, scientific, and engineering skills',
+    passion: 'discovering the secrets of nature',
     prompts: [
       'What inspired your most famous paintings?',
       'How did you become so skilled in so many different areas?',
@@ -33,6 +64,12 @@ const PERSONA_DETAILS = {
     ]
   },
   adalovelace: {
+    name: 'Ada Lovelace',
+    image: './img/adalovelace.jpg',
+    description: 'mathematician and writer',
+    timeframe: '19th century',
+    expertise: 'mathematical and computational understanding',
+    passion: 'the potential of computing machines',
     prompts: [
       "What were your contributions to Charles Babbage's Analytical Engine?",
       'How did you envision the future of computing?',
@@ -40,6 +77,12 @@ const PERSONA_DETAILS = {
     ]
   },
   cleopatra: {
+    name: 'Cleopatra',
+    image: './img/cleopatra.jpg',
+    description: 'the last active ruler of the Ptolemaic Kingdom of Egypt',
+    timeframe: '1st century BC',
+    expertise: 'politics, diplomacy, and leadership',
+    passion: 'preserving the legacy of Egypt',
     prompts: [
       'What were the major challenges you faced as ruler of Egypt?',
       'How did you navigate the political landscape of the Roman Republic?',
@@ -64,8 +107,15 @@ function addMsg(text, me=false){
 function resetChat(id = chatWho.value){
   chatHistory = [];
   chatLog.innerHTML = '';
-  const name = personaName(id);
-  addMsg(`You are now speaking with ${name}. Expect probing questions before answers.`);
+  const persona = PERSONA_DETAILS[id];
+  if(persona){
+    const introName = persona.description ? `${persona.name} (${persona.description})` : persona.name;
+    addMsg(`You are now speaking with ${introName}.`);
+    addMsg('Expect probing questions before answers.');
+  }else{
+    const name = personaName(id);
+    addMsg(`You are now speaking with ${name}. Expect probing questions before answers.`);
+  }
   renderPersonaPrompts(id);
 }
 
@@ -79,7 +129,20 @@ function renderPersonaPrompts(id){
     return;
   }
 
-  personaPrompts.style.display = '';
+  personaPrompts.style.display = 'block';
+
+  if(persona){
+    const meta = document.createElement('div');
+    meta.className = 'promptMeta small';
+    const bits = [];
+    if(persona.timeframe) bits.push(`Timeframe: ${persona.timeframe}`);
+    if(persona.expertise) bits.push(`Expertise: ${persona.expertise}`);
+    if(persona.passion) bits.push(`Passion: ${persona.passion}`);
+    meta.textContent = bits.join(' • ');
+    if(bits.length){
+      personaPrompts.appendChild(meta);
+    }
+  }
 
   const label = document.createElement('div');
   label.className = 'dim small';
