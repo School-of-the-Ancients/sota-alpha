@@ -6,8 +6,47 @@ const chatLog   = document.getElementById('chatLog');
 const chatInput = document.getElementById('chatInput');
 const sendChat  = document.getElementById('sendChat');
 const newChat   = document.getElementById('newChat');
+const personaPrompts = document.getElementById('personaPrompts');
 
 let chatHistory = [];
+
+const PERSONA_DETAILS = {
+  einstein: {
+    prompts: [
+      'What is the theory of relativity?',
+      'How did you come up with E=mc²?',
+      'What are your thoughts on the future of science?'
+    ]
+  },
+  galileo: {
+    prompts: [
+      'Tell me about your discoveries with the telescope.',
+      'How did you prove that the Earth revolves around the Sun?',
+      'What are your thoughts on the relationship between science and religion?'
+    ]
+  },
+  davinci: {
+    prompts: [
+      'What inspired your most famous paintings?',
+      'How did you become so skilled in so many different areas?',
+      'What are your thoughts on the nature of creativity?'
+    ]
+  },
+  adalovelace: {
+    prompts: [
+      "What were your contributions to Charles Babbage's Analytical Engine?",
+      'How did you envision the future of computing?',
+      'What is your opinion on the relationship between mathematics and creativity?'
+    ]
+  },
+  cleopatra: {
+    prompts: [
+      'What were the major challenges you faced as ruler of Egypt?',
+      'How did you navigate the political landscape of the Roman Republic?',
+      'What is your legacy as a female ruler in the ancient world?'
+    ]
+  }
+};
 
 function personaName(id){
   const option = Array.from(chatWho.options).find(opt => opt.value === id);
@@ -27,10 +66,44 @@ function resetChat(id = chatWho.value){
   chatLog.innerHTML = '';
   const name = personaName(id);
   addMsg(`You are now speaking with ${name}. Expect probing questions before answers.`);
+  renderPersonaPrompts(id);
 }
 
-async function sendChatMsg(){
-  const q = (chatInput.value || '').trim();
+function renderPersonaPrompts(id){
+  if(!personaPrompts) return;
+  personaPrompts.innerHTML = '';
+  const persona = PERSONA_DETAILS[id];
+  const prompts = persona && Array.isArray(persona.prompts) ? persona.prompts : [];
+  if(!prompts.length){
+    personaPrompts.style.display = 'none';
+    return;
+  }
+
+  personaPrompts.style.display = '';
+
+  const label = document.createElement('div');
+  label.className = 'dim small';
+  label.textContent = 'Suggested prompts';
+  personaPrompts.appendChild(label);
+
+  const list = document.createElement('div');
+  list.className = 'promptOptions';
+
+  prompts.forEach(prompt => {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'promptOption';
+    btn.textContent = prompt;
+    btn.onclick = () => sendChatMsg(prompt);
+    list.appendChild(btn);
+  });
+
+  personaPrompts.appendChild(list);
+}
+
+async function sendChatMsg(preset){
+  const sourceText = typeof preset === 'string' ? preset : (chatInput.value || '');
+  const q = sourceText.trim();
   if(!q) return;
   chatInput.value = '';
   addMsg(q, true);
