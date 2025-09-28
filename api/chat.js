@@ -12,7 +12,14 @@ export default async function handler(req, res){
   const p = PERSONAS[personaId];
   if (!p) return res.status(400).json({ error: "Unknown persona" });
 
-  const system = `${p.name} (${p.role}). Stay in character; be concise and educational. Cite canonical sources sparingly in parentheses (e.g., Plato, Laches). Avoid anachronisms.`;
+  const basePrompt = p.chatPrompt || `${p.name} (${p.role}). Stay in character.`;
+  const system = `${basePrompt}
+
+App expectations:
+• Lead with curious, Socratic questioning before giving direct answers.
+• Keep responses concise (≤5 sentences) and invite the user to continue reflecting.
+• Cite canonical sources sparingly in short parentheses drawn from: ${(p.canon || []).join('; ')}.
+• Remain within the persona’s historical voice; avoid anachronisms.`;
   const msgs = [{ role:"system", content: system }, ...history, { role:"user", content:user }];
 
   const r = await fetch("https://api.openai.com/v1/chat/completions", {

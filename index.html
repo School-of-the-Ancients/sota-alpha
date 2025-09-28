@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>School of the Ancients — 1-Minute Micro-Lessons + Chat</title>
+<title>School of the Ancients — Socratic Chat Prototype</title>
 <style>
   body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; margin:0; background:#0f0f14; color:#f5f7fb; }
   header { padding:16px 20px; border-bottom:1px solid #232536; display:flex; gap:12px; align-items:center; flex-wrap:wrap;}
@@ -16,6 +16,10 @@
   button.secondary { background:#232536; border:1px solid #2a2d42; color:#cdd3e1; }
   button.ghost { background:transparent; border:1px solid #2a2d42; color:#cdd3e1; }
   button:disabled { opacity:.5; cursor:not-allowed; }
+  .cardBtn { background:#101522; border:1px solid #2a2d42; border-radius:14px; padding:0; color:#f5f7fb; width:140px; }
+  .cardBtn:hover { border-color:#2b67f6; }
+  .cardBtn img { border-radius:12px 12px 0 0; width:140px; height:200px; object-fit:cover; display:block; }
+  .cardBtn .small { display:block; padding:8px; text-align:center; }
   select, input[type="text"] { background:#0f1320; color:#e8ecf7; border:1px solid #2a2d42; border-radius:10px; padding:10px; }
   .dim { color:#aab2c8; font-size:13px; }
   .choices button { flex:1 1 180px; }
@@ -28,10 +32,9 @@
   .msg { padding:10px 12px; border-radius:12px; margin:8px 0; max-width:80% }
   .me { background:#1b243a; margin-left:auto }
   .them { background:#101522; border:1px solid #2a2d42 }
-  /* tabs */
-  .tabs { display:flex; gap:8px; margin:16px 0; }
-  .tabs button { padding:8px 12px; border-radius:999px; }
-  .tabs .active { background:#2b67f6; border:0; color:white; }
+  .hero { margin:16px 0 24px; }
+  .hero h2 { margin:0; font-size:22px; }
+  .hero p { margin:6px 0 0; color:#aab2c8; max-width:620px; }
   .home-link {
   color: inherit;
   text-decoration: none;
@@ -47,66 +50,18 @@
 <header>
   <h1><a href="https://schooloftheancients.com/" class="home-link">School of the Ancients</a></h1>
   <span class="tag">Alpha Demo</span>
-  <span class="tag">1-minute Socratic lessons + Chat</span>
+  <span class="tag">Socratic dialogue playground</span>
 </header>
 
 
 <main>
-  <div class="tabs">
-    <button id="tabLessons" class="active">Lessons</button>
-    <button id="tabChat" class="ghost">Chat</button>
-  </div>
-
-  <!-- LESSONS CARD -->
-  <div id="lessonCard" class="card">
-    <div class="row" style="justify-content:space-between">
-      <div class="row">
-        <div>
-          <div class="dim small">Pick a figure</div>
-          <select id="lessonPicker">
-            <option value="socrates">Socrates — What is courage?</option>
-            <option value="einstein">Einstein — Why E=mc² matters</option>
-            <option value="cleopatra">Cleopatra — Leverage beats force</option>
-            <option value="davinci">Leonardo — What is perspective?</option>
-          </select>
-        </div>
-        <div>
-          <div class="dim small">Engine</div>
-          <select id="enginePicker">
-            <option value="script">Script (offline)</option>
-            <option value="ai">AI (beta)</option>
-          </select>
-        </div>
-      </div>
-      <div class="row">
-        <button id="startBtn">Start 1-minute demo</button>
-        <button id="restartBtn" class="ghost">Restart</button>
-        <button id="replayBtn" class="secondary" disabled>Replay line (🔊)</button>
-      </div>
-    </div>
-
-    <div id="stage" class="mt16">
-      <div id="scene" class="dim small">Tip: Click a choice to continue. Audio uses your device’s voice.</div>
-      <div id="line" class="mt12" style="font-size:20px; line-height:1.4;"></div>
-      <div id="choices" class="choices row mt12"></div>
-
-      <div id="takeaway" class="mt16"></div>
-      <div id="sources" class="mt12 small"></div>
-      <div id="quiz" class="mt16"></div>
-
-      <div id="cta" class="footer mt16" style="display:none;">
-        <div class="dim small">Like this? Join the CU beta:</div>
-        <div class="row mt8">
-          <input id="email" type="text" placeholder="email@colorado.edu" />
-          <button id="copyResults" class="secondary">Copy results</button>
-        </div>
-        <div id="copied" class="small mt8" style="display:none;">Results copied. Paste into an email/DM to join.</div>
-      </div>
-    </div>
-  </div>
+  <section class="hero">
+    <h2>Have a Socratic conversation with history&rsquo;s greats.</h2>
+    <p>Select a figure, ask anything, and they will guide you with questions and references &mdash; no scripted lesson flow.</p>
+  </section>
 
   <!-- CHAT CARD -->
-  <div id="chatCard" class="card" style="display:none;">
+  <div id="chatCard" class="card">
     <div class="row" style="justify-content:space-between">
       <div class="row">
         <div>
@@ -122,44 +77,43 @@
         </div>
       </div>
       <div class="row">
-        <button id="newChat" class="ghost">New chat</button>
+        <button id="newChat" class="ghost">Start fresh</button>
       </div>
     </div>
 
     <!-- Character cards grid -->
-<div id="cardGrid" class="row" style="gap:16px; flex-wrap:wrap; margin-bottom:8px">
-  <button class="cardBtn" data-id="einstein">
-    <img src="./img/einstein.jpg" alt="Albert Einstein" style="width:140px;height:200px;object-fit:cover;border-radius:12px;display:block">
-    <div class="small" style="text-align:center;margin-top:6px">Albert Einstein</div>
-  </button>
-  <button class="cardBtn" data-id="galileo">
-    <img src="./img/galileo.jpg" alt="Galileo Galilei" style="width:140px;height:200px;object-fit:cover;border-radius:12px;display:block">
-    <div class="small" style="text-align:center;margin-top:6px">Galileo Galilei</div>
-  </button>
-  <button class="cardBtn" data-id="davinci">
-    <img src="./img/davinci.jpg" alt="Leonardo da Vinci" style="width:140px;height:200px;object-fit:cover;border-radius:12px;display:block">
-    <div class="small" style="text-align:center;margin-top:6px">Leonardo Da Vinci</div>
-  </button>
-  <button class="cardBtn" data-id="adalovelace">
-    <img src="./img/adalovelace.jpg" alt="Ada Lovelace" style="width:140px;height:200px;object-fit:cover;border-radius:12px;display:block">
-    <div class="small" style="text-align:center;margin-top:6px">Ada Lovelace</div>
-  </button>
-  <button class="cardBtn" data-id="cleopatra">
-    <img src="./img/cleopatra.jpg" alt="Cleopatra" style="width:140px;height:200px;object-fit:cover;border-radius:12px;display:block">
-    <div class="small" style="text-align:center;margin-top:6px">Cleopatra</div>
-  </button>
-</div>
-
+    <div id="cardGrid" class="row" style="gap:16px; flex-wrap:wrap; margin:12px 0">
+      <button class="cardBtn" data-id="einstein">
+        <img src="./img/einstein.jpg" alt="Albert Einstein">
+        <div class="small">Albert Einstein</div>
+      </button>
+      <button class="cardBtn" data-id="galileo">
+        <img src="./img/galileo.jpg" alt="Galileo Galilei">
+        <div class="small">Galileo Galilei</div>
+      </button>
+      <button class="cardBtn" data-id="davinci">
+        <img src="./img/davinci.jpg" alt="Leonardo da Vinci">
+        <div class="small">Leonardo Da Vinci</div>
+      </button>
+      <button class="cardBtn" data-id="adalovelace">
+        <img src="./img/adalovelace.jpg" alt="Ada Lovelace">
+        <div class="small">Ada Lovelace</div>
+      </button>
+      <button class="cardBtn" data-id="cleopatra">
+        <img src="./img/cleopatra.jpg" alt="Cleopatra">
+        <div class="small">Cleopatra</div>
+      </button>
+    </div>
 
     <div id="chatLog"></div>
     <div class="row" style="margin-top:8px">
       <input id="chatInput" placeholder="Ask a question…" style="flex:1" />
       <button id="sendChat">Send</button>
     </div>
-    <div class="small" style="margin-top:8px">AI via Vercel API • replies try to cite canonical sources sparingly</div>
+    <div class="small" style="margin-top:8px">AI via Vercel API • replies use Socratic Q&amp;A with canonical citations when relevant</div>
   </div>
 
-  <p class="dim small mt12">Validation-first: explicit takeaway, sources, and 2 checks. Toggle AI to test character emulation. Chat lane for open-ended convo.</p>
+  <p class="dim small mt12">Prototype goal: recreate the original chat-first demo. Socratic guidance now comes from the prompt instead of a scripted lesson tree.</p>
 </main>
 
 <script src="./engine.js"></script>
