@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 400">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#2b3153" />
+      <stop offset="100%" stop-color="#131933" />
+    </linearGradient>
+  </defs>
+  <rect width="280" height="400" fill="url(#bg)" rx="24" />
+  <text x="50%" y="55%" text-anchor="middle" font-family="'Georgia',serif" font-size="56" fill="#f5f7fb">Α</text>
+  <text x="50%" y="78%" text-anchor="middle" font-family="'Georgia',serif" font-size="28" fill="#d4daf0">Aristotle</text>
+</svg>
