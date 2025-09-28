@@ -1,5 +1,5 @@
 // /api/chat
-import { PERSONAS } from "./personas.js";
+import { PERSONAS, resolvePersonaId } from "./personas.js";
 
 export default async function handler(req, res){
   res.setHeader("Access-Control-Allow-Origin","*");
@@ -9,7 +9,9 @@ export default async function handler(req, res){
   if (req.method !== "POST") return res.status(405).json({ error: "Use POST" });
 
   const { personaId="socrates", history=[], user="" } = req.body || {};
-  const p = PERSONAS[personaId];
+  const resolvedId = resolvePersonaId(personaId || "socrates");
+  if (!resolvedId) return res.status(400).json({ error: "Unknown persona" });
+  const p = PERSONAS[resolvedId];
   if (!p) return res.status(400).json({ error: "Unknown persona" });
 
   const basePrompt = p.chatPrompt || `${p.name} (${p.role}). Stay in character.`;
@@ -31,5 +33,5 @@ App expectations:
   const data = await r.json();
   const reply = data?.choices?.[0]?.message?.content || "[no reply]";
   const newHist = [...history, { role:"user", content: user }, { role:"assistant", content: reply }];
-  return res.status(200).json({ reply, history: newHist });
+  return res.status(200).json({ reply, history: newHist, personaId: resolvedId });
 }

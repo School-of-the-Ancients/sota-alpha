@@ -212,3 +212,27 @@ Cite canonical works sparingly (short labels). Avoid anachronisms.`
   }
 
 };
+
+const normalizeId = (value = "") => value.toString().toLowerCase().replace(/[^a-z0-9]/g, "");
+
+const NORMALIZED_ALIASES = {
+  // Common misspelling spotted in logs / user feedback
+  confusius: "confucius"
+};
+
+export function resolvePersonaId(value) {
+  if (!value) return null;
+  const raw = value.toString().trim().toLowerCase();
+  if (PERSONAS[raw]) return raw;
+
+  const normalized = normalizeId(raw);
+  if (PERSONAS[normalized]) return normalized;
+
+  for (const key of Object.keys(PERSONAS)) {
+    if (normalizeId(key) === normalized) return key;
+  }
+
+  if (NORMALIZED_ALIASES[normalized]) return NORMALIZED_ALIASES[normalized];
+
+  return null;
+}

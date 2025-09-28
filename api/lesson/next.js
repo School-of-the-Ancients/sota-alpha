@@ -1,5 +1,5 @@
 // /api/lesson/next
-import { PERSONAS } from "../personas.js";
+import { PERSONAS, resolvePersonaId } from "../personas.js";
 import { NodeSchema } from "../validation.js";
 
 function normalizeNode(n, persona) {
@@ -35,7 +35,9 @@ export default async function handler(req, res) {
 
   try {
     const { personaId, goal, level="intro", sources=[], state, userChoiceId, userChoiceText } = req.body || {};
-    const persona = PERSONAS[personaId];
+    const resolvedId = resolvePersonaId(personaId || "socrates");
+    if (!resolvedId) return res.status(400).json({ error: "Unknown persona" });
+    const persona = PERSONAS[resolvedId];
     if (!persona) return res.status(400).json({ error: "Unknown persona" });
 
     const step = (state?.history?.length || 0);
@@ -45,7 +47,7 @@ export default async function handler(req, res) {
       spec: "LessonNode",
       goal, level,
       sources: sources.length ? sources : persona.canon,
-      state: state || { personaId, history: [] },
+      state: state || { personaId: resolvedId, history: [] },
       userChoiceId: userChoiceId || null,
       userChoiceText: userChoiceText || null,
       step
@@ -97,9 +99,9 @@ export default async function handler(req, res) {
       };
     }
 
-    const nextState = state && typeof state === "object" ? state : { personaId, history: [] };
+    const nextState = state && typeof state === "object" ? state : { personaId: resolvedId, history: [] };
     nextState.history.push({ nodeId: node.id, choiceId: userChoiceId || null });
-    return res.status(200).json({ node, state: nextState });
+    return res.status(200).json({ node, state: nextState, personaId: resolvedId });
   } catch (e) {
     return res.status(500).json({ error: e?.message || "Unknown error" });
   }
