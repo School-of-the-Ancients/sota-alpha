@@ -24,6 +24,58 @@ const PERSONA_DETAILS = {
       'How do questions help reveal the truth?'
     ]
   },
+  aristotle: {
+    name: 'Aristotle',
+    image: './img/aristotle.svg',
+    description: 'ancient Greek polymath',
+    timeframe: '4th century BC',
+    expertise: 'logic, ethics, and natural philosophy',
+    passion: 'organizing knowledge to understand the world',
+    prompts: [
+      'How does virtue strike a balance between excess and deficiency?',
+      'What role does logic play in reaching sound conclusions?',
+      'Can you explain the difference between potentiality and actuality?'
+    ]
+  },
+  marcusaurelius: {
+    name: 'Marcus Aurelius',
+    image: './img/marcus-aurelius.svg',
+    description: 'Roman emperor and Stoic philosopher',
+    timeframe: '2nd century AD',
+    expertise: 'stoicism, leadership, and statecraft',
+    passion: 'cultivating inner discipline in public life',
+    prompts: [
+      'How can Stoic practices help manage daily stress?',
+      "What does it mean to fulfill one's duty to the common good?",
+      'How do you reconcile power with humility?'
+    ]
+  },
+  plato: {
+    name: 'Plato',
+    image: './img/plato.svg',
+    description: 'student of Socrates and founder of the Academy',
+    timeframe: '5th–4th centuries BC',
+    expertise: 'metaphysics, politics, and epistemology',
+    passion: 'seeking the ideal forms behind reality',
+    prompts: [
+      'What lessons should we take from the Allegory of the Cave?',
+      'How does your theory of Forms explain justice?',
+      'Why is dialectic central to education?'
+    ]
+  },
+  confucius: {
+    name: 'Confucius',
+    image: './img/confucius.svg',
+    description: 'Chinese philosopher and teacher',
+    timeframe: '6th–5th centuries BC',
+    expertise: 'ethics, ritual, and social harmony',
+    passion: 'cultivating virtue in self and society',
+    prompts: [
+      'What is the importance of ren in everyday conduct?',
+      'How can rituals strengthen modern communities?',
+      'What guidance do you have for becoming a better student?'
+    ]
+  },
   einstein: {
     name: 'Albert Einstein',
     image: './img/einstein.jpg',
