@@ -26,7 +26,7 @@ const PERSONA_DETAILS = {
   },
   aristotle: {
     name: 'Aristotle',
-    image: './img/aristotle.svg',
+    image: './img/aristotle.png',
     description: 'ancient Greek polymath',
     timeframe: '4th century BC',
     expertise: 'logic, ethics, and natural philosophy',
@@ -39,7 +39,7 @@ const PERSONA_DETAILS = {
   },
   marcusaurelius: {
     name: 'Marcus Aurelius',
-    image: './img/marcus-aurelius.svg',
+    image: './img/aurelius.png',
     description: 'Roman emperor and Stoic philosopher',
     timeframe: '2nd century AD',
     expertise: 'stoicism, leadership, and statecraft',
@@ -65,7 +65,7 @@ const PERSONA_DETAILS = {
   },
   confucius: {
     name: 'Confucius',
-    image: './img/confucius.svg',
+    image: './img/confucius.png',
     description: 'Chinese philosopher and teacher',
     timeframe: '6th–5th centuries BC',
     expertise: 'ethics, ritual, and social harmony',
@@ -229,10 +229,23 @@ async function sendChatMsg(preset){
       headers: { 'Content-Type':'application/json' },
       body: JSON.stringify({ personaId: chatWho.value, history: chatHistory, user: q })
     });
-    const j = await r.json();
-    chatHistory = j.history || chatHistory;
-    addMsg(j.reply || '[no reply]');
+    const raw = await r.text();
+    let payload = {};
+    try {
+      payload = raw ? JSON.parse(raw) : {};
+    } catch (jsonErr) {
+      console.warn('Failed to parse JSON from chat endpoint', jsonErr);
+    }
+    if(!r.ok){
+      const msg = payload && payload.error ? payload.error : `server error (${r.status})`;
+      addMsg(`[${msg}]`);
+      return;
+    }
+    const reply = payload.reply && payload.reply.trim() ? payload.reply : '[no reply]';
+    chatHistory = Array.isArray(payload.history) ? payload.history : chatHistory;
+    addMsg(reply);
   }catch(err){
+    console.error('Chat request failed', err);
     addMsg('[error contacting server]');
   }
 }
