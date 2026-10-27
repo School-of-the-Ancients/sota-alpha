@@ -1,3 +1,8 @@
+> **Repository status:** Retained Socratic-chat prototype. See [rights and reuse](RIGHTS.md).
+> For current application development, start with [Professor](https://github.com/School-of-the-Ancients/sota-professor)
+> and [Matrix](https://github.com/School-of-the-Ancients/matrix-loading-operator).
+> Earlier descriptions below refer to this repository's own checkpoint; existing license grants remain intact.
+
 # School of the Ancients — Socratic Chat Prototype
 
 Conversational micro-lessons with historical figures. The static site runs in any modern browser and can call the companion serverless API to generate Socratic responses backed by citations.
