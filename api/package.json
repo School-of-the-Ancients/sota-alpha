@@ -2,6 +2,7 @@
   "name": "sota-api",
   "private": true,
   "type": "module",
+  "author": "School of the Ancients LLC",
   "dependencies": {
     "zod": "^3.23.8"
   },
