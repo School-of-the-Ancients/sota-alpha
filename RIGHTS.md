@@ -20,13 +20,15 @@ The licensing/provenance snapshot for this notice is
 This boundary identifies the material reviewed; it does not retract older
 permissions or imply a complete audit of every earlier distribution.
 
+## Ownership
+
+School of the Ancients LLC, a Colorado limited liability company formed 2026-10-28, is the owner and rights holder of the original code, content, and assets in this repository.
+
+Maintainer contact: [thetopham](https://github.com/thetopham) (GitHub @thetopham).
+
 ## Attribution and separate rights
 
-Project attribution: **School of the Ancients**, maintained by
-[thetopham](https://github.com/thetopham). Retain each actual author's required
-copyright, permission, and attribution notices. This project attribution is
-not an assertion of sole authorship, a copyright assignment, or ownership of
-third-party material.
+Retain each actual author's required copyright, permission, and attribution notices. The ownership statement above does not claim third-party material.
 
 Dependencies, templates, portraits, models, textures, audio, datasets, and
 provider services can have separate owners and terms. Record their exact
@@ -56,4 +58,4 @@ agreements, and third-party inputs with qualified counsel.
 
 See the [organization licensing policy](https://github.com/School-of-the-Ancients/.github/blob/9b4090df605b70ce313c198179662e19d3db568d/LICENSING.md) and
 [rights-review checklist](https://github.com/School-of-the-Ancients/.github/blob/9b4090df605b70ce313c198179662e19d3db568d/RIGHTS_REVIEW.md). These explanatory notices
-do not revoke existing grants, override legal exceptions, or guarantee ownership.
+do not revoke existing grants or override legal exceptions.
